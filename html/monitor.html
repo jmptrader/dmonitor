@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Control</title>
+<style>
+	body {
+		background: url(../images/swirlpattern.png);
+	}
+
+	.container-one {
+		height: 1px; width: 500px;
+    	position: absolute;
+    	top: -90%; bottom: 0; left: -7.5%; right: 0;
+    	margin: auto;
+	}
+
+	.listsource {
+		margin-bottom: 20px; margin-left: 40px;
+	}
+
+	.header-one {
+		margin-left: 15%; margin-bottom: 20px;
+	}
+
+	.header-one div, .listsource div {
+		display: inline-block;
+	}
+
+	label {
+		background-color: yellow;
+	}
+
+	table {
+		width: 500px;
+		text-align: left;
+		border-collapse: collapse;
+		table-layout: fixed;
+	}
+
+	table, td, th {
+		border: 1px solid black;
+	}
+
+	td, th {
+		padding: 4px; padding-left: 10px;
+	}
+
+	th {
+		background-color: rgba(51, 51, 255,0.6);
+	}
+	
+	td {
+		background-color: rgba(153, 204, 255,0.6);
+	}
+</style>
+</head>
+<body>
+<div class="container-one">
+	<div class="header-one">
+		<form name="logout" action="logout" method="POST">
+			<div><label>Daemon Monitor Control</label></div>
+			<div><label>Logged in as <strong>{{.Username}}<strong></label></div>
+			<div><input name="logoutbtn" type="submit" value="Log out"></div>
+		</form>
+	</div>
+	<div class="listsource">
+		<form name="reloadlist" action="reloadlist" method="POST">
+			<div class="hostselect">
+				<label>Host</label>
+				<select name="hostname">
+					{{with .Hosts}}
+						{{range .}}
+							<option value="{{.Value}}">{{.Name}}</option> 
+						{{end}}
+					{{end}}
+				</select>
+			</div>
+			<div class="envselect">
+				<label>Environment</label>
+				<select name="environment">
+  					{{with .Envs}}
+  						{{range .}}
+  							<option value="{{.Value}}">{{.Name}}</option>
+  						{{end}}
+  					{{end}}
+  					
+				</select>
+			</div>
+			<div><input name="reloadlistbtn" type="submit" value="Refresh list"></div>
+		</form>
+	</div>
+	<div class="daemonlist">
+		<form name="daemonlist" action="startOrStop" method="POST">
+			<table>
+				<tr>
+					<th width="300px">Name</th>
+					<th width="100px">Status</th>
+					<th width="100px">Start/Stop</th>
+				</tr>
+				{{with .Daemons}}
+					{{range .}}
+				<tr>
+					<td width="300px">{{.Name}}</td>
+					<td width="100px">{{.Status}}</td>
+					<td width="100px"><input name="{{.Name}}" type="submit" value="{{.Control}}"></td>
+				</tr>
+					{{end}}
+				{{end}}
+			</table>
+		</form>
+	</div>
+</div>
+</body>
+</html>

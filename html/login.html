@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+<style>
+	body {
+		background: url(../images/swirlpattern.png);
+	}
+	.container-one {
+		height: 1px; width: 400px;
+    	position: absolute;
+    	top: -50%; bottom: 0; left: 10%; right: 0;
+    	margin: auto;
+	}
+
+	.dmlabel, .username-input, .password-input {
+		padding-bottom: 10px;
+	}
+	.dmlabel {
+		padding-left: 60px;
+	}
+	.dmlabel label {
+		background-color: yellow;
+	}
+	.submit-login {
+		padding-left: 87px;
+	}
+</style>
+</head>
+<body>
+<div class="container-one">
+	<form name="login" action="login" method="POST">
+		<div class="dmlabel"><label>Daemon Monitor</label></div>
+		<div class="username-input"><input type="text" name="username" placeholder="Username" size="30"></div>
+		<div class="password-input"><input type="password" name="password" placeholder="Password" size="30"></div>
+		<div class="submit-login" name="submit-login"><input name ="loginbtn" type="submit" value="Login"></div>
+	</form>
+</div>
+</body>
+</html>
