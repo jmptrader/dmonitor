@@ -47,6 +47,7 @@ func connectToHost(host, user, pass string) (*ssh.Client, error) {
 	return client, nil
 }
 
+// UpdateCurrentHostEnv updates the page control struct with the current host and environment.
 func UpdateCurrentHostEnv(cp *ControlPage, hostValue, envValue string) {
 	for i := range cp.Hosts {
 		if cp.Hosts[i].Value == hostValue {
@@ -62,7 +63,8 @@ func UpdateCurrentHostEnv(cp *ControlPage, hostValue, envValue string) {
 	cp.CurrentEnv = cp.Envs[0]
 }
 
-func ReloadDaemonsStatus(cp *ControlPage) {
+// ReloadDaemonStatus checks the status of the daemons and updates the status for each daemon.
+func RefreshdDaemonsStatus(cp *ControlPage) {
 	log.Println("Checking session for user:", cp.Username)
 	if client, ok := clientCache[cp.CurrentHost.Value]; ok {
 		
@@ -89,6 +91,7 @@ func ReloadDaemonsStatus(cp *ControlPage) {
 	}
 }
 
+// initSessionCache creates a cache of SSH clients to the list of hosts.
 func initSessionCache(hosts []Host, user, pass string) error {
 	clientCache = map[string]*ssh.Client{}
 	for i := range hosts {
@@ -104,6 +107,8 @@ func initSessionCache(hosts []Host, user, pass string) error {
 	return nil
 }
 
+// LoginUser sets up the current host, the current environment and the SSH connection 
+// for the user with password pass.
 func LoginUser(cp *ControlPage, user, pass string) error {
 	cp.Username = user
 	cp.CurrentHost = cp.Hosts[0]
@@ -118,6 +123,8 @@ func LoginUser(cp *ControlPage, user, pass string) error {
 	return nil
 }
 
+// LogoutUser removes the user from the ControlPage struct. It closes connections to
+// all the hosts for the user and empties the SSH client cache.
 func LogoutUser(cp *ControlPage) {
 	// Remove user
 	cp.Username = ""
@@ -126,7 +133,7 @@ func LogoutUser(cp *ControlPage) {
 		cp.Daemons[i].Status = ""
 		cp.Daemons[i].Control = ""
 	}
-	// Close all connections and sessions
+	// Close all SSH clients
 	for _, v := range clientCache {
 		v.Close()
 	}
@@ -134,9 +141,11 @@ func LogoutUser(cp *ControlPage) {
 	clientCache = map[string]*ssh.Client{}
 }
 
+// StartOrStopDaemon starts or stops a daemon. If the control is Start, it starts the daemon.
+// If the control is Stop, it stops the daemon.
 func StartOrStopDaemon(cp *ControlPage, daemonName, control string) error {
-	var cmd string
-	var di int
+	var cmd string // command string to be executed
+	var di int // index of the daemon to be controlled
 	for i := range cp.Daemons {
 		if cp.Daemons[i].Name == daemonName {
 			if control == "Stop" {
@@ -153,23 +162,17 @@ func StartOrStopDaemon(cp *ControlPage, daemonName, control string) error {
 	}
 
 	client := clientCache[cp.CurrentHost.Value]
-	session, _ := client.NewSession()
+	session, err := client.NewSession()
+	if err != nil {
+		return errors.New(string("unable to get a new SSH session to host" + cp.CurrentHost.Value))
+	}
 	session.Stdout = nil
 	session.Stderr = nil
 	defer session.Close()
-	log.Printf("Running command: %q", cmd)
+	log.Println("Running command:", cmd)
 	out, err := session.CombinedOutput(cmd)
 	if err != nil {
 		log.Println("Command output:", string(out))
-		s, _ := client.NewSession()
-		s.Stdout = nil
-		s.Stderr = nil
-		out1, err1 := s.Output("echo $PATH")
-		if err1 != nil {
-			log.Println("echo $PATH error:", err1)
-		}
-		log.Println("PATH:", string(out1))
-		s.Close()
 		return err
 	}
 	if control == "Start" {
@@ -181,6 +184,5 @@ func StartOrStopDaemon(cp *ControlPage, daemonName, control string) error {
 	}
 
 	log.Println(string("Executed command: " + cmd))
-	log.Println(string("Change control on daemon: " + daemonName))
 	return nil
 }

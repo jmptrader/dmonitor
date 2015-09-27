@@ -68,7 +68,7 @@ func monitor(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Host: %+v\n", cp.CurrentHost)
 	log.Printf("Environment: %+v\n", cp.CurrentEnv)
 	//log.Printf("\n\nControlPage:\n%+v\n\n", cp)
-	dmonitor.ReloadDaemonsStatus(&cp)
+	dmonitor.RefreshdDaemonsStatus(&cp)
 	//log.Printf("\n\nControlPage:\n%+v\n\n", cp)
 	log.Println("Update done")
 	renderTemplate(w, "monitor")
@@ -112,6 +112,8 @@ func reloadConfig(w http.ResponseWriter, r *http.Request) {
 		log.Println("Cannot load config file. Check the file at location config/config.json\n", err)
 		return
 	}
+	
+	http.Redirect(w, r, "/monitor", http.StatusFound)
 }
 
 func main() {
