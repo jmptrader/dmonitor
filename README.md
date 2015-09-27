@@ -33,9 +33,9 @@ $ ./main
 ###	Use it
 Open a web browser and go the url ```localhost:8008/```(it is the default one). It shows a login page.
 
-![dmonitor login page](https://github.com/mubitosh/dmonitor/blob/master/main/images/dmonitor-login-page-screenshot.png "dmonitor login page")
+![dmonitor login page](https://github.com/mubitosh/dmonitor/blob/master/main/images/dmonitor-login-page-screenshot.jpeg "dmonitor login page")
 
 Provide a username and password for SSH connection to the hosts provided in ```config.json```. After a successful login, the monitor page will show the current status of the daemons listed in config.json. 
 
-![dmonitor monitor page](https://github.com/mubitosh/dmonitor/blob/master/main/images/dmonitor-monitor-page-screenshot.png "dmonitor monitor page")
+![dmonitor monitor page](https://github.com/mubitosh/dmonitor/blob/master/main/images/dmonitor-monitor-page-screenshot.jpeg "dmonitor monitor page")
 Start/Stop a daemon, refresh the list as needed.
