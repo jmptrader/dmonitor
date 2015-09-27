@@ -1,9 +1,5 @@
 package dmonitor
 
-import (
-	"golang.org/x/crypto/ssh"
-)
-
 type Host struct {
 	Name string `json:"name"`
 	Value string `json:"value"`
@@ -13,11 +9,6 @@ type Env struct {
 	Name string `json:"name"`
 	Value string `json:"value"`
 }
-
-type SSHClientSession struct {
-	Client *ssh.Client
-	Session *ssh.Session
-}
 	
 type Daemon struct {
 	Name string `json:"name"`
@@ -25,6 +16,7 @@ type Daemon struct {
 	Control string `json:"-"`	// dynamic value to be updated at runtime
 	StopCmd string `json:"stopcmd"`
 	StartCmd string `json:"startcmd"`
+	StatusCmd string `json:"statuscmd"`
 }
 
 type ControlPage struct {

@@ -65,7 +65,9 @@ func monitor(w http.ResponseWriter, r *http.Request) {
 	log.Println("Updating status of all daemons")
 	log.Printf("Host: %+v\n", cp.CurrentHost)
 	log.Printf("Environment: %+v\n", cp.CurrentEnv)
+	log.Printf("\n\nControlPage:\n%+v\n\n", cp)
 	dmonitor.UpdateDaemonsStatus(&cp)
+	log.Printf("\n\nControlPage:\n%+v\n\n", cp)
 	log.Println("Update done")
 	renderTemplate(w, "monitor")
 }
@@ -85,10 +87,12 @@ func startOrStop(w http.ResponseWriter, r *http.Request) {
 		log.Println("\nEmpty control received\n")
 	}
 	for daemonName, control := range r.Form {
-		dmonitor.StartOrStopDaemon(&cp, daemonName, control[0])
+		log.Println("Request to", control, daemonName)
+		if err := dmonitor.StartOrStopDaemon(&cp, daemonName, control[0]); err != nil {
+			log.Println("Failed to execute command:", err)
+		}
 		break;
 	}
-	log.Printf("\n\n%+v\n\n", r.Form)
 	http.Redirect(w, r, "/monitor", http.StatusFound)
 }
 
@@ -97,7 +101,7 @@ func main() {
 	cp, err = dmonitor.LoadConfig()
 
 	if err != nil {
-		log.Println("cannot load config file\n", err)
+		log.Println("Cannot load config file. Exiting application.\n", err)
 		return
 	}
 
@@ -107,5 +111,6 @@ func main() {
 	http.HandleFunc("/monitor", monitor)
 	http.HandleFunc("/reloadlist", reloadlist)
 	http.HandleFunc("/startOrStop", startOrStop)
+	log.Println("Starting dmonitor at port 8008")
 	http.ListenAndServe(":8008", nil)
 }

@@ -10,7 +10,7 @@ import (
 )
 
 // Cache of SSH connections and sessions to various hosts for the same user
-var connSessionCache map[string]SSHClientSession
+var clientCache map[string]*ssh.Client
 
 // LoadConfig loads the configuration data from a JSON file.
 // It returns a ControlPage struct with the data from the JSON.
@@ -32,8 +32,8 @@ func LoadConfig() (ControlPage, error) {
 }
 
 // ConnectToHost sets up a SSH connection to the host with username and password.
-// Returns a client object and a session object.
-func connectToHost(host, user, pass string) (*ssh.Client, *ssh.Session, error) {
+// Returns a client object.
+func connectToHost(host, user, pass string) (*ssh.Client, error) {
 	sshConfig := &ssh.ClientConfig{
 		User: user,
 		Auth: []ssh.AuthMethod{ssh.Password(pass)},
@@ -41,19 +41,11 @@ func connectToHost(host, user, pass string) (*ssh.Client, *ssh.Session, error) {
 
 	client, err := ssh.Dial("tcp", host, sshConfig)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	session, err := client.NewSession()
-	if err != nil {
-		client.Close()
-		return nil, nil, err
-	}
-
-	return client, session, nil
+	return client, nil
 }
-
-func GenControlPage() {}
 
 func UpdateCurrentHostEnv(cp *ControlPage, hostValue, envValue string) {
 	for i := range cp.Hosts {
@@ -71,29 +63,38 @@ func UpdateCurrentHostEnv(cp *ControlPage, hostValue, envValue string) {
 }
 
 func UpdateDaemonsStatus(cp *ControlPage) {
-	// check if there is a SSH session for the current host
-	// if not set up SSH connection
 	log.Println("Checking session for user:", cp.Username)
-	if _, ok := connSessionCache[cp.CurrentHost.Value]; !ok {
-		
-	}
-
-	for i := range cp.Daemons {
-		cp.Daemons[i].Status = "Running"
-		cp.Daemons[i].Control = "Stop"
+	if client, ok := clientCache[cp.CurrentHost.Value]; ok {
+		session, _ := client.NewSession()
+		defer session.Close()
+		// Check status of all daemons and update the control page
+		for i := range cp.Daemons {
+			daemon := cp.Daemons[i]
+			out, err := session.CombinedOutput(daemon.StatusCmd)
+			if err != nil {
+				log.Printf("Failed to update daemon status for daemon: %+v", daemon)
+				log.Println("Error:", err)
+			}
+			if string(out) == "" {
+				daemon.Status, daemon.Control = "Stopped", "Start"
+			} else {
+				daemon.Status, daemon.Control = "Running", "Stop"
+			}
+			log.Printf("Daemon: %s, Status: %s\n", daemon.Name, daemon.Status)
+		}
 	}
 }
 
 func initSessionCache(hosts []Host, user, pass string) error {
-	// Set up a connection session for all the hosts.
+	clientCache = map[string]*ssh.Client{}
 	for i := range hosts {
 		log.Printf("Connecting to host: %+v\n", hosts[i])
-		client, session, err := connectToHost(hosts[i].Value, user, pass)
+		client, err := connectToHost(hosts[i].Value, user, pass)
 		if err != nil {
 			return errors.New(string("failed to connect to host " + hosts[i].Name))
 		}
-		sc := SSHClientSession{client, session}
-		connSessionCache[hosts[i].Value] = sc
+		
+		clientCache[hosts[i].Value] = client
 		log.Println("Connected to host:", hosts[i].Value)
 	}
 	return nil
@@ -122,17 +123,11 @@ func LogoutUser(cp *ControlPage) {
 		cp.Daemons[i].Control = ""
 	}
 	// Close all connections and sessions
-	for _, v := range connSessionCache {
-		v.Session.Close()
-		v.Client.Close()
+	for _, v := range clientCache {
+		v.Close()
 	}
 	// Empty SSH connection cache
-	connSessionCache = map[string]SSHClientSession{}
-}
-
-func runCmd(cp *ControlPage, cmd string) bool {
-
-	return true
+	clientCache = map[string]*ssh.Client{}
 }
 
 func StartOrStopDaemon(cp *ControlPage, daemonName, control string) error {
@@ -153,8 +148,23 @@ func StartOrStopDaemon(cp *ControlPage, daemonName, control string) error {
 		return errors.New(string("unable to find command to " + control + " " + daemonName))
 	}
 
-	runCmd(cp, cmd)
-	log.Println(string("Executed command: " + cp.Daemons[di].StartCmd))
+	client := clientCache[cp.CurrentHost.Value]
+	session, _ := client.NewSession()
+	defer session.Close()
+	out, err := session.CombinedOutput(cmd)
+	if err != nil {
+		log.Println("Command output:", out)
+		return err
+	}
+	if control == "Start" {
+		cp.Daemons[di].Status = "Running"
+		cp.Daemons[di].Control = "Stop"
+	} else if control == "Stop" {
+		cp.Daemons[di].Status = "Stopped"
+		cp.Daemons[di].Control = "Start"
+	}
+
+	log.Println(string("Executed command: " + cmd))
 	log.Println(string("Change control on daemon: " + daemonName))
 	return nil
 }

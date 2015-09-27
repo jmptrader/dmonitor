@@ -3,14 +3,6 @@
         {
             "name": "host01",
             "value": "127.0.0.1:22"
-        },
-        {
-            "name": "host02",
-            "value": "127.0.0.1:22"
-        },
-        {
-            "name": "host03",
-            "value": "127.0.0.1:22"
         }
     ],
 
@@ -32,33 +24,15 @@
     "daemons": [
         {
             "name": "daemon01",
-            "startcmd": "startcmd daemon01",
-            "stopcmd": "stopcmd daemon01"
+            "startcmd": "vim",
+            "stopcmd": "pkill vim",
+            "statuscmd": "pidof vim"
         },
         {
-            "name": "daemon02",
-            "startcmd": "startcmd daemon02",
-            "stopcmd": "stopcmd daemon02"
-        },
-        {
-            "name": "daemon03",
-            "startcmd": "startcmd daemon03",
-            "stopcmd": "stopcmd daemon03"
-        },
-        {
-            "name": "daemon04",
-            "startcmd": "startcmd daemon04",
-            "stopcmd": "stopcmd daemon04"
-        },
-        {
-            "name": "daemon05",
-            "startcmd": "startcmd daemon05",
-            "stopcmd": "stopcmd daemon05"
-        },
-        {
-            "name": "daemon06",
-            "startcmd": "startcmd daemon06",
-            "stopcmd": "stopcmd daemon06"
+            "name": "daemon01",
+            "startcmd": "nano",
+            "stopcmd": "pkill nano",
+            "statuscmd": "ls"
         }
     ]
 }
