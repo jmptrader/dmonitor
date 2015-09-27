@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// Cache of SSH connections and sessions to various hosts for the same user
+// Cache of SSH clients to various hosts for the same user.
 var clientCache map[string]*ssh.Client
 
 // LoadConfig loads the configuration data from a JSON file.
@@ -62,7 +62,7 @@ func UpdateCurrentHostEnv(cp *ControlPage, hostValue, envValue string) {
 	cp.CurrentEnv = cp.Envs[0]
 }
 
-func UpdateDaemonsStatus(cp *ControlPage) {
+func ReloadDaemonsStatus(cp *ControlPage) {
 	log.Println("Checking session for user:", cp.Username)
 	if client, ok := clientCache[cp.CurrentHost.Value]; ok {
 		

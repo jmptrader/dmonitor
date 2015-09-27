@@ -10,12 +10,9 @@ import (
 
 var templates = template.Must(template.ParseFiles("../html/login.html", "../html/monitor.html"))
 
-//var client *ssh.Client
-//var session *ssh.Session
-
 var cp dmonitor.ControlPage
 
-// renderTemplate renders a template with the data in ControlPage struct p.
+// renderTemplate renders a template with the data in ControlPage struct cp.
 func renderTemplate(w http.ResponseWriter, tmpl string) {
 	err := templates.ExecuteTemplate(w, tmpl+".html", cp)
 	if err != nil {
@@ -23,10 +20,12 @@ func renderTemplate(w http.ResponseWriter, tmpl string) {
 	}
 }
 
+// index handles route to "/".
 func index(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "login")
 }
 
+// login handles route to "/login".
 func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	user := r.Form["username"][0]
@@ -46,6 +45,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/monitor", http.StatusFound)
 }
 
+// logout handles route to "/logout".
 func logout(w http.ResponseWriter, r *http.Request) {
 	user := cp.Username
 	log.Println("Logging out user:", user)
@@ -55,6 +55,8 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+// monitor handles route to "/monitor".
+// Reloads the status of all the daemons.
 func monitor(w http.ResponseWriter, r *http.Request) {
 	if cp.Username == "" {
 		log.Println("No user found, redirecting to login page")
@@ -66,12 +68,14 @@ func monitor(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Host: %+v\n", cp.CurrentHost)
 	log.Printf("Environment: %+v\n", cp.CurrentEnv)
 	//log.Printf("\n\nControlPage:\n%+v\n\n", cp)
-	dmonitor.UpdateDaemonsStatus(&cp)
+	dmonitor.ReloadDaemonsStatus(&cp)
 	//log.Printf("\n\nControlPage:\n%+v\n\n", cp)
 	log.Println("Update done")
 	renderTemplate(w, "monitor")
 }
 
+// reloadlist handles route to "/relaodlist".
+// Reloads the status of all the daemons of the current host and environment.
 func reloadlist(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	hostValue := r.Form["hostname"][0]
@@ -81,6 +85,8 @@ func reloadlist(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/monitor", http.StatusFound)
 }
 
+// startOrStop handles route to "/startOrStop".
+// Starts or stops a daemon then redirects to "/monitor".
 func startOrStop(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	if r.Form == nil {
@@ -96,10 +102,22 @@ func startOrStop(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/monitor", http.StatusFound)
 }
 
+// reloadConfig handles route to "/reloadConfig".
+// Reads config/config.json file and redirects to "/monitor".
+func reloadConfig(w http.ResponseWriter, r *http.Request) {
+	var err error
+	cp, err = dmonitor.LoadConfig()
+
+	if err != nil {
+		log.Println("Cannot load config file. Exiting application.\n", err)
+		return
+	}
+}
+
 func main() {
 	var err error
 	cp, err = dmonitor.LoadConfig()
-	
+
 	if err != nil {
 		log.Println("Cannot load config file. Exiting application.\n", err)
 		return
