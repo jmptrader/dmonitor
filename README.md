@@ -1,4 +1,4 @@
-## **Dmonitor** : A simple daemon monitor web application written in Go.
+## **dmonitor** : A simple daemon monitor web application written in Go.
 
 ### Build it
 The following commands will build the project-
