@@ -17,7 +17,7 @@ var clientCache map[string]*ssh.Client
 func LoadConfig() (ControlPage, error) {
 	cp := ControlPage{}
 
-	data, err := ioutil.ReadFile("../config/config.json")
+	data, err := ioutil.ReadFile("config/config.json")
 	if err != nil {
 		log.Println("Error reading config file:", err)
 		return cp, err

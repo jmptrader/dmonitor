@@ -8,7 +8,7 @@ import (
 	"github.com/mubitosh/dmonitor"
 )
 
-var templates = template.Must(template.ParseFiles("../html/login.html", "../html/monitor.html"))
+var templates = template.Must(template.ParseFiles("html/login.html", "html/monitor.html"))
 
 var cp dmonitor.ControlPage
 
@@ -109,7 +109,7 @@ func reloadConfig(w http.ResponseWriter, r *http.Request) {
 	cp, err = dmonitor.LoadConfig()
 
 	if err != nil {
-		log.Println("Cannot load config file. Exiting application.\n", err)
+		log.Println("Cannot load config file. Check the file at location config/config.json\n", err)
 		return
 	}
 }
@@ -119,7 +119,7 @@ func main() {
 	cp, err = dmonitor.LoadConfig()
 
 	if err != nil {
-		log.Println("Cannot load config file. Exiting application.\n", err)
+		log.Println("Cannot load config file. Check the file at location config/config.json\n", err)
 		return
 	}
 
@@ -129,6 +129,11 @@ func main() {
 	http.HandleFunc("/monitor", monitor)
 	http.HandleFunc("/reloadlist", reloadlist)
 	http.HandleFunc("/startOrStop", startOrStop)
+	// Handler for images.
+	http.HandleFunc("/images/", func(w http.ResponseWriter, r *http.Request) {
+    	http.ServeFile(w, r, r.URL.Path[1:])
+	})
+	
 	log.Println("Starting dmonitor at port 8008")
 	http.ListenAndServe(":8008", nil)
 }
