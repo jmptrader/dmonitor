@@ -65,9 +65,9 @@ func monitor(w http.ResponseWriter, r *http.Request) {
 	log.Println("Updating status of all daemons")
 	log.Printf("Host: %+v\n", cp.CurrentHost)
 	log.Printf("Environment: %+v\n", cp.CurrentEnv)
-	log.Printf("\n\nControlPage:\n%+v\n\n", cp)
+	//log.Printf("\n\nControlPage:\n%+v\n\n", cp)
 	dmonitor.UpdateDaemonsStatus(&cp)
-	log.Printf("\n\nControlPage:\n%+v\n\n", cp)
+	//log.Printf("\n\nControlPage:\n%+v\n\n", cp)
 	log.Println("Update done")
 	renderTemplate(w, "monitor")
 }
@@ -99,7 +99,7 @@ func startOrStop(w http.ResponseWriter, r *http.Request) {
 func main() {
 	var err error
 	cp, err = dmonitor.LoadConfig()
-
+	
 	if err != nil {
 		log.Println("Cannot load config file. Exiting application.\n", err)
 		return

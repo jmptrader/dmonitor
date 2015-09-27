@@ -65,13 +65,16 @@ func UpdateCurrentHostEnv(cp *ControlPage, hostValue, envValue string) {
 func UpdateDaemonsStatus(cp *ControlPage) {
 	log.Println("Checking session for user:", cp.Username)
 	if client, ok := clientCache[cp.CurrentHost.Value]; ok {
-		session, _ := client.NewSession()
-		defer session.Close()
+		
 		// Check status of all daemons and update the control page
 		for i := range cp.Daemons {
-			daemon := cp.Daemons[i]
+			daemon := &cp.Daemons[i]
+			session, _ := client.NewSession()
+			session.Stdout = nil
+			session.Stderr = nil
+			log.Println("Running command: ", daemon.StatusCmd)
 			out, err := session.CombinedOutput(daemon.StatusCmd)
-			if err != nil {
+			if err != nil && string(out) != "" {
 				log.Printf("Failed to update daemon status for daemon: %+v", daemon)
 				log.Println("Error:", err)
 			}
@@ -81,6 +84,7 @@ func UpdateDaemonsStatus(cp *ControlPage) {
 				daemon.Status, daemon.Control = "Running", "Stop"
 			}
 			log.Printf("Daemon: %s, Status: %s\n", daemon.Name, daemon.Status)
+			session.Close()
 		}
 	}
 }
@@ -150,10 +154,22 @@ func StartOrStopDaemon(cp *ControlPage, daemonName, control string) error {
 
 	client := clientCache[cp.CurrentHost.Value]
 	session, _ := client.NewSession()
+	session.Stdout = nil
+	session.Stderr = nil
 	defer session.Close()
+	log.Printf("Running command: %q", cmd)
 	out, err := session.CombinedOutput(cmd)
 	if err != nil {
-		log.Println("Command output:", out)
+		log.Println("Command output:", string(out))
+		s, _ := client.NewSession()
+		s.Stdout = nil
+		s.Stderr = nil
+		out1, err1 := s.Output("echo $PATH")
+		if err1 != nil {
+			log.Println("echo $PATH error:", err1)
+		}
+		log.Println("PATH:", string(out1))
+		s.Close()
 		return err
 	}
 	if control == "Start" {

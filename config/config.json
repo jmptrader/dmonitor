@@ -24,15 +24,21 @@
     "daemons": [
         {
             "name": "daemon01",
-            "startcmd": "vim",
-            "stopcmd": "pkill vim",
-            "statuscmd": "pidof vim"
+            "startcmd": "daemon01",
+            "stopcmd": "pkill daemon01",
+            "statuscmd": "pidof daemon01"
         },
         {
-            "name": "daemon01",
-            "startcmd": "nano",
-            "stopcmd": "pkill nano",
-            "statuscmd": "ls"
+            "name": "daemon02",
+            "startcmd": "daemon02",
+            "stopcmd": "pkill daemon02",
+            "statuscmd": "pidof daemon02"
+        },
+        {
+            "name": "daemon03",
+            "startcmd": "daemon03",
+            "stopcmd": "pkill daemon03",
+            "statuscmd": "pidof daemon03"
         }
     ]
 }
