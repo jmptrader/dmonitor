@@ -112,9 +112,10 @@ A web server running locally maintains a cache of SSH clients. Whenever a comman
 
 **[About creating a daemon in Linux](http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html)**
 
-May be you need a simple daemon to test out the application. The project includes a simple daemon written in C for Linux. Compile it and place in the $PATH which will be available in a SSH session.
+May be you need a simple daemon to test out the application. The project includes a simple daemon written in C for Linux. It is aptly named ```noob_daemon.c```(located under ```dmonitor/config/```). Compile it and place in the $PATH which will be available in a SSH session.
 
 ### TODO
 
-* Add support for session handling
-	Currently the application does not have support for session handling. So if you are logged in from a web browser. You can open a different web browser, open the monitor page and will be able to access it.
+**Add support for session handling**
+
+Currently the application does not have support for session handling. So if you are logged in from a web browser. You can open a different web browser, open the monitor page and will be able to access it.
