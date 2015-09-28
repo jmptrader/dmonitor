@@ -1,5 +1,12 @@
 ## **dmonitor** : A simple daemon monitor web application written in Go
 
+### Project layout
+
+Below is a screenshot of the project layout.
+
+![project layout](https://github.com/mubitosh/dmonitor/blob/master/main/images/project-layout.jpeg "project layout")
+
+
 ### Build it
 The following commands will build the project.
 
@@ -94,3 +101,20 @@ Provide a username and password for SSH connection to the hosts provided in ```c
 
 ![dmonitor monitor page](https://github.com/mubitosh/dmonitor/blob/master/main/images/dmonitor-monitor-page-screenshot.jpeg "dmonitor monitor page")
 Start/Stop a daemon, refresh the list as needed.
+
+### How does it work?
+A web server running locally maintains a cache of SSH clients. Whenever a command is to be executed on one of the clients, it creates a new session with the client. It runs the command and according to the result the webpage is updated.
+
+![dmonitor architecture](https://github.com/mubitosh/dmonitor/blob/master/main/images/dmonitor-architecture.jpeg "dmonitor architecture")
+
+
+### Notes
+
+**[About creating a daemon in Linux](http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html)**
+
+May be you need a simple daemon to test out the application. The project includes a simple daemon written in C for Linux. Compile it and place in the $PATH which will be available in a SSH session.
+
+### TODO
+
+* Add support for session handling
+	Currently the application does not have support for session handling. So if you are logged in from a web browser. You can open a different web browser, open the monitor page and will be able to access it.
