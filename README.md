@@ -114,6 +114,9 @@ A web server running locally maintains a cache of SSH clients. Whenever a comman
 
 May be you need a simple daemon to test out the application. The project includes a simple daemon written in C for Linux. It is aptly named ```noob_daemon.c```(located under ```dmonitor/config/```). Compile it and place in the $PATH which will be available in a SSH session.
 
+**[Swirl pattern background and other backgrounds at http://subtlepatterns.com/](http://subtlepatterns.com/)**
+
+
 ### TODO
 
 **Add support for session handling**
