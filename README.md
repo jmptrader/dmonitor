@@ -1,5 +1,8 @@
 ## **dmonitor** : A simple daemon monitor web application written in Go
 
+dmonitor is a simple web application for monitoring daemons. Provided for a daemon commands to start it, to stop it, to check its status, it can be monitored with a web interface.
+The daemons are expected to be running on a remote host which can be connected to with SSH.
+
 ### Project layout
 
 Below is a screenshot of the project layout.
